@@ -27,6 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
+		<nexus.snapshot.url>http://localhost:8083/repository/maven-snapshots</nexus.snapshot.url>
 		<java.version>25</java.version>
 		<maven.compiler.release>25</maven.compiler.release>
 		<datasource-micrometer.version>2.2.1</datasource-micrometer.version>
@@ -231,4 +232,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>nexus</id>
+			<name>nexus-snapshot</name>
+			<url>${nexus.snapshot.url}</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
