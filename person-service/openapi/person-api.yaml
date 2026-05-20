@@ -1,0 +1,388 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title:
+    Person API
+  description:
+    REST API для взаимодействия с Person сервисом.
+servers:
+  - url: http://localhost:8082
+
+paths:
+  /v1/persons:
+    post:
+      summary:
+        Регистрация пользователя.
+      operationId:
+        "registration"
+      tags:
+        - Person
+      requestBody:
+        required:
+          true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonWriteDTO'
+      responses:
+        201:
+          description: Успешная регистрация.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonWriteResponseDTO'
+        409:
+          description: Email пользователя занят.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        422:
+          description: Не валидные данные.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /v1/persons/{id}:
+    get:
+      summary:
+        Получение пользователя по id.
+      operationId:
+        "findById"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Успешно найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDTO'
+        404:
+          description: Пользователь не найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+    put:
+      summary:
+        Обновление пользователя по id.
+      operationId:
+        "updateById"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required:
+          true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonWriteDTO'
+      responses:
+        200:
+          description: Успешное обновление.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonWriteResponseDTO'
+        422:
+          description: Не валидные данные.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+    delete:
+      summary:
+        Soft delete пользователя по id.
+      operationId:
+        "deleteById"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Успешное удаление.
+
+  /v1/persons/{id}/settings:
+    get:
+      summary:
+        Получение настроек пользователя.
+      operationId:
+        "getPersonSettings"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Успешно найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsDTO'
+        404:
+          description: Настройки не найдены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary:
+        Обновление настроек пользователя.
+      operationId:
+        "updatePersonSettings"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required:
+          true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingsUpdateDTO'
+      responses:
+        200:
+          description: Успешно найден.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsDTO'
+        422:
+          description: Не валидные данные.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /v1/persons/{id}/telegram:
+    get:
+      summary:
+        Получение данных о привязки Telegram.
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Данные о привязки Telegram найдены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramLinkInfoDTO'
+        404:
+          description: Данные о привязки Telegram не найдены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+    delete:
+      summary:
+        Удаление привязки Telegram.
+      operationId:
+        "deleteTelegram"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Telegram отвязан.
+
+  /v1/persons/{id}/telegram/link:
+    get:
+      summary:
+        Получение ссылки для привязки Telegram.
+      operationId:
+        "getTelegramLink"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Ссылка успешно получена.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TelegramLinkDTO'
+
+  /v1/persons/{id}/telegram/status-stream:
+    get:
+      summary:
+        SSE стрим статуса привязки Telegram.
+      operationId:
+        "createStatusStreamTelegram"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Telegram привязан.
+
+  /v1/persons/compensate-registration/{id}:
+    delete:
+      summary:
+        Компенсирующие действие регистрации. Hard delete пользователя.
+      operationId:
+        "compensateRegistration"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Успешное удаление.
+
+components:
+  schemas:
+    PersonWriteDTO:
+      type: object
+      required: [
+        email,
+        first_name,
+        last_name
+      ]
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    PersonWriteResponseDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+
+    PersonDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+
+    SettingsDTO:
+      type: object
+      properties:
+        notification_enable:
+          type: boolean
+        notification_statistics_frequency:
+          type: string
+          enum: [quarter, month, week]
+        prefered_notification_service:
+          type: string
+          enum: [ email, telegram ]
+
+    SettingsUpdateDTO:
+      type: object
+      properties:
+        notification_enable:
+          type: boolean
+        notification_statistics_frequency:
+          type: string
+          enum: [quarter, month, week]
+        prefered_notification_service:
+          type: string
+          enum: [ email, telegram ]
+
+    TelegramLinkInfoDTO:
+      type: object
+      properties:
+        telegram_username:
+          type: string
+        telegram_chat_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    TelegramLinkDTO:
+      type: object
+      properties:
+        link:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
